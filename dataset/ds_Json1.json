@@ -1,0 +1,111 @@
+{
+	"name": "ds_Json1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"dsp_folder": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@dataset().dsp_folder",
+					"type": "Expression"
+				},
+				"container": "landing"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"items": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"tags": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"owner": {
+								"type": "object",
+								"properties": {
+									"account_id": {
+										"type": "integer"
+									},
+									"reputation": {
+										"type": "integer"
+									},
+									"user_id": {
+										"type": "integer"
+									},
+									"user_type": {
+										"type": "string"
+									},
+									"profile_image": {
+										"type": "string"
+									},
+									"display_name": {
+										"type": "string"
+									},
+									"link": {
+										"type": "string"
+									}
+								}
+							},
+							"is_answered": {
+								"type": "boolean"
+							},
+							"view_count": {
+								"type": "integer"
+							},
+							"answer_count": {
+								"type": "integer"
+							},
+							"score": {
+								"type": "integer"
+							},
+							"last_activity_date": {
+								"type": "integer"
+							},
+							"creation_date": {
+								"type": "integer"
+							},
+							"question_id": {
+								"type": "integer"
+							},
+							"content_license": {
+								"type": "string"
+							},
+							"link": {
+								"type": "string"
+							},
+							"title": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				"has_more": {
+					"type": "boolean"
+				},
+				"quota_max": {
+					"type": "integer"
+				},
+				"quota_remaining": {
+					"type": "integer"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
