@@ -56,7 +56,7 @@
 		],
 		"parameters": {
 			"mplp_tag": {
-				"type": "string",
+				"type": "array",
 				"defaultValue": "python"
 			}
 		},
