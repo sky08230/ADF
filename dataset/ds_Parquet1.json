@@ -1,0 +1,66 @@
+{
+	"name": "ds_Parquet1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"dsp_folder": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@dataset().dsp_folder",
+					"type": "Expression"
+				},
+				"container": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "YEAR",
+				"type": "UTF8"
+			},
+			{
+				"name": "MONTH",
+				"type": "UTF8"
+			},
+			{
+				"name": "SUPPLIER",
+				"type": "UTF8"
+			},
+			{
+				"name": "ITEM CODE",
+				"type": "UTF8"
+			},
+			{
+				"name": "ITEM DESCRIPTION",
+				"type": "UTF8"
+			},
+			{
+				"name": "ITEM TYPE",
+				"type": "UTF8"
+			},
+			{
+				"name": "RETAIL SALES",
+				"type": "UTF8"
+			},
+			{
+				"name": "RETAIL TRANSFERS",
+				"type": "UTF8"
+			},
+			{
+				"name": "WAREHOUSE SALES",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
