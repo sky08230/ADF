@@ -1,0 +1,53 @@
+{
+	"name": "ds_Parquet_silver",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"dsp_folder": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@dataset().dsp_folder",
+					"type": "Expression"
+				},
+				"container": "silver"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "account_id",
+				"type": "INT32"
+			},
+			{
+				"name": "accept_rate",
+				"type": "INT32"
+			},
+			{
+				"name": "display_name",
+				"type": "UTF8"
+			},
+			{
+				"name": "reputation",
+				"type": "INT32"
+			},
+			{
+				"name": "user_id",
+				"type": "INT32"
+			},
+			{
+				"name": "row_number",
+				"type": "INT32"
+			}
+		]
+	}
+}
