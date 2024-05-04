@@ -79,7 +79,19 @@
 												"type": "Expression"
 											}
 										},
+										"source2": {
+											"dsp_folder": {
+												"value": "@item()",
+												"type": "Expression"
+											}
+										},
 										"sink1": {
+											"dsp_folder": {
+												"value": "@item()",
+												"type": "Expression"
+											}
+										},
+										"sink2": {
 											"dsp_folder": {
 												"value": "@item()",
 												"type": "Expression"
@@ -238,6 +250,12 @@
 						"dependencyConditions": [
 							"Succeeded"
 						]
+					},
+					{
+						"activity": "flowfromlandingtoBrinze_answer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
 				],
 				"policy": {
@@ -270,20 +288,156 @@
 						"enablePartitionDiscovery": false
 					}
 				}
+			},
+			{
+				"name": "flowbronzeto_silver_answer",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "purgeSilver",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": {
+								"value": "@pipeline().parameters.plp_answer",
+								"type": "Expression"
+							},
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_Parquet1",
+						"type": "DatasetReference",
+						"parameters": {
+							"dsp_folder": {
+								"value": "@pipeline().parameters.plp_answer",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_Parquet_silver",
+						"type": "DatasetReference",
+						"parameters": {
+							"dsp_folder": {
+								"value": "@pipeline().parameters.plp_answer",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "flowfromlandingtoBrinze_answer",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "purgeBronze",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_dataflow1_answer",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"source2": {
+								"dsp_folder": {
+									"value": "@pipeline().parameters.plp_answer",
+									"type": "Expression"
+								}
+							},
+							"sink2": {
+								"dsp_folder": {
+									"value": "@pipeline().parameters.plp_answer",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
 			}
 		],
 		"parameters": {
 			"plp_tag": {
-				"type": "array"
+				"type": "array",
+				"defaultValue": [
+					"python",
+					"databricks"
+				]
 			},
 			"plp_union_folder": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "union"
 			},
 			"plp_fact_folder": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "fact"
 			},
 			"plp_dim_folder": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "dim"
+			},
+			"plp_answer": {
+				"type": "string",
+				"defaultValue": "answer"
 			}
 		},
 		"annotations": [],
