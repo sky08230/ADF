@@ -20,6 +20,10 @@
 						"plp_tag": {
 							"value": "@pipeline().parameters.mplp_tag",
 							"type": "Expression"
+						},
+						"answer_folder": {
+							"value": "@pipeline().parameters.mplp_answer",
+							"type": "Expression"
 						}
 					}
 				}
@@ -60,6 +64,10 @@
 						},
 						"plp_dim_folder": {
 							"value": "@pipeline().parameters.mplp_dim_folder",
+							"type": "Expression"
+						},
+						"plp_answer": {
+							"value": "@pipeline().parameters.mplp_answer",
 							"type": "Expression"
 						}
 					}
@@ -110,6 +118,10 @@
 						"plp_dim_folder": {
 							"value": "@pipeline().parameters.mplp_dim_folder",
 							"type": "Expression"
+						},
+						"plp_answer": {
+							"value": "@pipeline().parameters.mplp_answer",
+							"type": "Expression"
 						}
 					}
 				}
@@ -146,6 +158,10 @@
 			"mplp_sql_dim_table": {
 				"type": "string",
 				"defaultValue": "dimOwners"
+			},
+			"mplp_answer": {
+				"type": "string",
+				"defaultValue": "answer"
 			}
 		},
 		"annotations": [],

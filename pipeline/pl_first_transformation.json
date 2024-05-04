@@ -79,19 +79,7 @@
 												"type": "Expression"
 											}
 										},
-										"source2": {
-											"dsp_folder": {
-												"value": "@item()",
-												"type": "Expression"
-											}
-										},
 										"sink1": {
-											"dsp_folder": {
-												"value": "@item()",
-												"type": "Expression"
-											}
-										},
-										"sink2": {
 											"dsp_folder": {
 												"value": "@item()",
 												"type": "Expression"
