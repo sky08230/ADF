@@ -1,0 +1,9 @@
+{
+	"name": "pilot-adf-dev",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "1edb4319-67d1-4e85-92d4-cb649331d155",
+		"tenantId": "bb932f15-ef38-42ba-91fc-f3c59d5dd1f1"
+	}
+}

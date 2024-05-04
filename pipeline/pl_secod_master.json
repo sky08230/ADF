@@ -1,0 +1,88 @@
+{
+	"name": "pl_secod_master",
+	"properties": {
+		"activities": [
+			{
+				"name": "multiple_tag",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.plp_masterdir",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 4,
+					"activities": [
+						{
+							"name": "injection",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_first_injection",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"plp_tag": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "tansformation",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "injection",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_first_transformation",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"plp_trans_folder": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"plp_masterdir": {
+				"type": "array",
+				"defaultValue": [
+					"python",
+					"databricks",
+					"azure-data-factory",
+					"azure-synapse"
+				]
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-02T22:09:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

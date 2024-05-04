@@ -1,0 +1,67 @@
+{
+	"name": "pl_first_master",
+	"properties": {
+		"activities": [
+			{
+				"name": "injection",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_first_injection",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"plp_tag": {
+							"value": "@pipeline().parameters.plp_master_folder",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "transformation",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "injection",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_first_transformation",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"plp_trans_folder": {
+							"value": "@pipeline().parameters.plp_master_folder",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"plp_master_folder": {
+				"type": "string",
+				"defaultValue": "databricks"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-02T21:40:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
