@@ -18,7 +18,11 @@
 						"referenceName": "ds_Parquet_silver",
 						"type": "DatasetReference"
 					},
-					"name": "sink1factdata"
+					"name": "sink1factdata",
+					"rejectedDataLinkedService": {
+						"referenceName": "ls_AzureBlobStorage1",
+						"type": "LinkedServiceReference"
+					}
 				},
 				{
 					"dataset": {
@@ -118,6 +122,8 @@
 				"     format: 'parquet',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     outputAssertFailedRows: true,",
+				"     assertFailure_container: 'quarantine',",
 				"     partitionBy('roundRobin', 2)) ~> sink1factdata",
 				"filter1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
