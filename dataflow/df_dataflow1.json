@@ -10,6 +10,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_Json1",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
 				}
 			],
 			"sinks": [
@@ -23,6 +30,13 @@
 						"referenceName": "ls_AzureBlobStorage1",
 						"type": "LinkedServiceReference"
 					}
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_Parquet1",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
 				}
 			],
 			"transformations": [
@@ -34,6 +48,15 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "flatten2"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -48,6 +71,17 @@
 				"     inferDriftedColumnTypes: true,",
 				"     ignoreNoFilesFound: false,",
 				"     documentForm: 'documentPerLine') ~> source1",
+				"source(output(",
+				"          items as (tags as string[], owner as (account_id as integer, reputation as integer, user_id as integer, user_type as string, profile_image as string, display_name as string, link as string), is_answered as boolean, view_count as integer, answer_count as integer, score as integer, last_activity_date as integer, creation_date as integer, question_id as integer, content_license as string, link as string, title as string)[],",
+				"          has_more as boolean,",
+				"          quota_max as integer,",
+				"          quota_remaining as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> source2",
 				"source1 foldDown(unroll(items),",
 				"     mapColumn(",
 				"          accepted_answer_id = items.accepted_answer_id,",
@@ -101,6 +135,52 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source2 foldDown(unroll(items),",
+				"     mapColumn(",
+				"          tags = items.tags,",
+				"          owner = items.owner,",
+				"          is_answered = items.is_answered,",
+				"          view_count = items.view_count,",
+				"          answer_count = items.answer_count,",
+				"          score = items.score,",
+				"          last_activity_date = items.last_activity_date,",
+				"          creation_date = items.creation_date,",
+				"          question_id = items.question_id,",
+				"          content_license = items.content_license,",
+				"          link = items.link,",
+				"          title = items.title",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten2",
+				"flatten2 derive({owner.account_id} = owner.account_id,",
+				"          {owner.reputation} = owner.reputation,",
+				"          {owner.user_id} = owner.user_id,",
+				"          {owner.user_type} = owner.user_type,",
+				"          {owner.profile_image} = owner.profile_image,",
+				"          {owner.display_name} = owner.display_name,",
+				"          {owner.link} = owner.link) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          tags,",
+				"          is_answered,",
+				"          view_count,",
+				"          answer_count,",
+				"          score,",
+				"          last_activity_date,",
+				"          creation_date,",
+				"          question_id,",
+				"          content_license,",
+				"          link,",
+				"          title,",
+				"          account_id = {owner.account_id},",
+				"          reputation = {owner.reputation},",
+				"          user_id = {owner.user_id},",
+				"          user_type = {owner.user_type},",
+				"          profile_image = {owner.profile_image},",
+				"          display_name = {owner.display_name},",
+				"          link = {owner.link}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -119,7 +199,23 @@
 				"     skipDuplicateMapOutputs: true,",
 				"     outputAssertFailedRows: true,",
 				"     assertFailure_container: 'quarintine',",
-				"     assertFailure_folderPath: 'api') ~> sink1"
+				"     assertFailure_folderPath: 'api') ~> sink1",
+				"select2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          YEAR as string,",
+				"          MONTH as string,",
+				"          SUPPLIER as string,",
+				"          {ITEM CODE} as string,",
+				"          {ITEM DESCRIPTION} as string,",
+				"          {ITEM TYPE} as string,",
+				"          {RETAIL SALES} as string,",
+				"          {RETAIL TRANSFERS} as string,",
+				"          {WAREHOUSE SALES} as string",
+				"     ),",
+				"     format: 'parquet',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink2"
 			]
 		}
 	}
