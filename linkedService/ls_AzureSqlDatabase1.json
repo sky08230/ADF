@@ -4,14 +4,14 @@
 		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
-			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=sqlserver-first-pilot-dev.database.windows.net;Initial Catalog=sqldb-first-pilot-dev;User ID=mikechen",
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=sqlserver-first-pilot-dev-1.database.windows.net;Initial Catalog=sqldb-first-pilot-dev;User ID=shiyi",
 			"password": {
 				"type": "AzureKeyVaultSecret",
 				"store": {
 					"referenceName": "ls_AzureKeyVault1",
 					"type": "LinkedServiceReference"
 				},
-				"secretName": "AzureSQLDBpassword"
+				"secretName": "azuresql"
 			}
 		}
 	}
