@@ -5,7 +5,26 @@
 			{
 				"name": "ingest",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "loggingpipelinestart",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "fromdate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "todate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
@@ -23,6 +42,14 @@
 						},
 						"answer_folder": {
 							"value": "@pipeline().parameters.mplp_answer",
+							"type": "Expression"
+						},
+						"plp_fromdate": {
+							"value": "@variables('fromdate')",
+							"type": "Expression"
+						},
+						"plp_todate": {
+							"value": "@variables('todate')",
 							"type": "Expression"
 						}
 					}
@@ -74,7 +101,7 @@
 				}
 			},
 			{
-				"name": "Execute Pipeline1",
+				"name": "load",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
@@ -125,6 +152,148 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "loggingpipelinestart",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "insert into logging.pipelinerun(\r\npipelinerunID ,\r\npipelineName ,\r\npipelineStartTime ,\r\npipelineEndTime ,\r\npipelineStatus \r\n) values(\r\n'@{pipeline().RunId}',\r\n'@{pipeline().Pipeline}',\r\ngetUTCdate(),\r\nnull,\r\n'Starting'\r\n)"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "loggingpipelinesEnd",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "load",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "update logging.pipelinerun\r\nset pipelineEndTime=getUTCdate(),\r\n    pipelineStatus ='@{activity('load').status}'\r\nwhere   pipelinerunID= '@{pipeline().RunId}'\r\nand  pipelineStatus ='Starting'\r\n"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select pipelineStartTime from @{pipeline().parameters.mplp_logging_schema}.@{pipeline().parameters.mplp_logging_view} \nwhere pipelineName='@{pipeline().Pipeline}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_AzureSqlTable1",
+						"type": "DatasetReference",
+						"parameters": {
+							"sql_schema": {
+								"value": "@pipeline().parameters.mplp_logging_schema",
+								"type": "Expression"
+							},
+							"sql_table": {
+								"value": "@pipeline().parameters.mplp_logging_view",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "fromdate",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "fromdate",
+					"value": "@{div(sub(ticks(activity('Lookup1').output.firstRow.pipelineStartTime),ticks('1970-01-01')),10000000)}"
+				}
+			},
+			{
+				"name": "todate",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "todate",
+					"value": {
+						"value": "@{div(sub(ticks(utcnow()),ticks('1970-01-01')),10000000)}",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -162,6 +331,22 @@
 			"mplp_answer": {
 				"type": "string",
 				"defaultValue": "answer"
+			},
+			"mplp_logging_schema": {
+				"type": "string",
+				"defaultValue": "logging"
+			},
+			"mplp_logging_view": {
+				"type": "string",
+				"defaultValue": "vpipelinerun"
+			}
+		},
+		"variables": {
+			"fromdate": {
+				"type": "String"
+			},
+			"todate": {
+				"type": "String"
 			}
 		},
 		"annotations": [],

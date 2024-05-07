@@ -8,13 +8,19 @@
 		"parameters": {
 			"dsp_tag": {
 				"type": "string"
+			},
+			"fromdate": {
+				"type": "string"
+			},
+			"todate": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
 			"relativeUrl": {
-				"value": "@concat('questions?order=desc&sort=activity&tagged=', dataset().dsp_tag, '&site=stackoverflow')",
+				"value": "@concat('questions?fromdate=',dataset().fromdate,'&todate=',dataset().todate,'&order=desc&sort=activity&tagged=', dataset().dsp_tag, '&site=stackoverflow')",
 				"type": "Expression"
 			}
 		},
