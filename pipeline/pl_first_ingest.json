@@ -171,7 +171,17 @@
 				"inputs": [
 					{
 						"referenceName": "ds_RestResource2",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"ds_fromdate": {
+								"value": "@pipeline().parameters.plp_fromdate",
+								"type": "Expression"
+							},
+							"ds_todate": {
+								"value": "@pipeline().parameters.plp_todate",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"outputs": [
