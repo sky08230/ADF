@@ -5,11 +5,19 @@
 			"referenceName": "RestService1",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"ds_fromdate": {
+				"type": "string"
+			},
+			"ds_todate": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
 			"relativeUrl": {
-				"value": "@concat('answers?pagesize=100&order=desc&sort=activity&site=stackoverflow')",
+				"value": "@concat('answers?pagesize=100&fromdate=',dataset().ds_fromdate,'&todate=',dataset().ds_todate,'&order=desc&sort=activity&site=stackoverflow')",
 				"type": "Expression"
 			}
 		},

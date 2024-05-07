@@ -321,13 +321,6 @@
 							"Skipped",
 							"Failed"
 						]
-					},
-					{
-						"activity": "Lookup2",
-						"dependencyConditions": [
-							"Skipped",
-							"Failed"
-						]
 					}
 				],
 				"policy": {
@@ -345,41 +338,6 @@
 						"message": "the pipeline with run id @{pipeline().RunId} is having issue",
 						"pipelineName": "@{pipeline().Pipeline}",
 						"receiver": "@{pipeline().parameters.receiver}"
-					}
-				}
-			},
-			{
-				"name": "Lookup2",
-				"type": "Lookup",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select1 pipelineStartTime11 from @{pipeline().parameters.mplp_logging_schema}.@{pipeline().parameters.mplp_logging_view} ",
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
-					"dataset": {
-						"referenceName": "ds_AzureSqlTable1",
-						"type": "DatasetReference",
-						"parameters": {
-							"sql_schema": {
-								"value": "@pipeline().parameters.mplp_logging_schema",
-								"type": "Expression"
-							},
-							"sql_table": {
-								"value": "@pipeline().parameters.mplp_logging_view",
-								"type": "Expression"
-							}
-						}
 					}
 				}
 			}
