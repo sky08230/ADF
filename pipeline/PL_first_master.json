@@ -5,6 +5,8 @@
 			{
 				"name": "ingest",
 				"type": "ExecutePipeline",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "loggingpipelinestart",
@@ -58,6 +60,8 @@
 			{
 				"name": "transformation",
 				"type": "ExecutePipeline",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "ingest",
@@ -103,6 +107,8 @@
 			{
 				"name": "load",
 				"type": "ExecutePipeline",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Failed",
 				"dependsOn": [
 					{
 						"activity": "transformation",
@@ -156,6 +162,8 @@
 			{
 				"name": "loggingpipelinestart",
 				"type": "Script",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Lookup1",
@@ -189,6 +197,8 @@
 			{
 				"name": "loggingpipelinesEnd",
 				"type": "Script",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "load",
@@ -222,6 +232,8 @@
 			{
 				"name": "Lookup1",
 				"type": "Lookup",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -260,6 +272,8 @@
 			{
 				"name": "fromdate",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Lookup1",
@@ -281,6 +295,8 @@
 			{
 				"name": "todate",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"secureOutput": false,
@@ -292,6 +308,78 @@
 					"value": {
 						"value": "@{div(sub(ticks(utcnow()),ticks('1970-01-01')),10000000)}",
 						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "sendemail",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "load",
+						"dependencyConditions": [
+							"Skipped",
+							"Failed"
+						]
+					},
+					{
+						"activity": "Lookup2",
+						"dependencyConditions": [
+							"Skipped",
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "https://prod-78.eastus.logic.azure.com:443/workflows/efd3d8c2bfe4466691d3807982e855df/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=FI9DaeKqd2NpHg0ZWDFF0myjYQXRBWWDuGLsrIw9qok",
+					"body": {
+						"message": "the pipeline with run id @{pipeline().RunId} is having issue",
+						"pipelineName": "@{pipeline().Pipeline}",
+						"receiver": "@{pipeline().parameters.receiver}"
+					}
+				}
+			},
+			{
+				"name": "Lookup2",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select1 pipelineStartTime11 from @{pipeline().parameters.mplp_logging_schema}.@{pipeline().parameters.mplp_logging_view} ",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_AzureSqlTable1",
+						"type": "DatasetReference",
+						"parameters": {
+							"sql_schema": {
+								"value": "@pipeline().parameters.mplp_logging_schema",
+								"type": "Expression"
+							},
+							"sql_table": {
+								"value": "@pipeline().parameters.mplp_logging_view",
+								"type": "Expression"
+							}
+						}
 					}
 				}
 			}
@@ -339,6 +427,10 @@
 			"mplp_logging_view": {
 				"type": "string",
 				"defaultValue": "vpipelinerun"
+			},
+			"receiver": {
+				"type": "string",
+				"defaultValue": "shiyigong17@gmail.com"
 			}
 		},
 		"variables": {
